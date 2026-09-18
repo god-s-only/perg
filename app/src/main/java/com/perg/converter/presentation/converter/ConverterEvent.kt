@@ -7,6 +7,7 @@ sealed interface ConverterEvent {
     data class TargetSelected(val format: DocumentFormat) : ConverterEvent
     data object StartConversion : ConverterEvent
     data class ConfirmRename(val name: String) : ConverterEvent
+    data object DismissRenameSuccess : ConverterEvent
     data object DismissError : ConverterEvent
     data object Reset : ConverterEvent
 }

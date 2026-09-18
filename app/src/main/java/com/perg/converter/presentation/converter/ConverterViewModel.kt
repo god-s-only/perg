@@ -34,6 +34,7 @@ class ConverterViewModel @Inject constructor(
             is ConverterEvent.TargetSelected -> onTargetSelected(event.format)
             ConverterEvent.StartConversion -> onStartConversion()
             is ConverterEvent.ConfirmRename -> onConfirmRename(event.name)
+            ConverterEvent.DismissRenameSuccess -> _state.update { it.copy(showRenameSuccess = false) }
             ConverterEvent.DismissError -> _state.update { it.copy(error = null) }
             ConverterEvent.Reset -> onReset()
         }
@@ -105,7 +106,7 @@ class ConverterViewModel @Inject constructor(
             try {
                 repository.rename(uri, finalName)
                 pendingDisplayName = finalName
-                _state.update { it.copy(outputName = finalName) }
+                _state.update { it.copy(outputName = finalName, showRenameSuccess = true) }
             } catch (e: Exception) {
                 _state.update { it.copy(error = e.message) }
             }

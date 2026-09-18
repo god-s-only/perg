@@ -12,5 +12,6 @@ data class ConverterState(
     val progress: Int = 0,
     val outputUri: String? = null,
     val outputName: String? = null,
+    val showRenameSuccess: Boolean = false,
     val error: String? = null
 )
