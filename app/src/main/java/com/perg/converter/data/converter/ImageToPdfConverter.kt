@@ -16,7 +16,7 @@ class ImageToPdfConverter @Inject constructor() {
                 val bitmap = BitmapFactory.decodeStream(input) ?: throw IllegalArgumentException("DecodeFailed")
                 val document = PdfDocument()
                 try {
-                    val pageInfo = PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, 1).build()
+                    val pageInfo = PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, 1).create()
                     val page = document.startPage(pageInfo)
                     page.canvas.drawBitmap(bitmap, 0f, 0f, null)
                     document.finishPage(page)

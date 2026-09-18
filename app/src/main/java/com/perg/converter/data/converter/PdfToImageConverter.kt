@@ -31,7 +31,7 @@ class PdfToImageConverter @Inject constructor() {
                     for (i in 0 until renderer.pageCount) {
                         renderer.openPage(i).use { page ->
                             val bitmap = Bitmap.createBitmap(page.width * 2, page.height * 2, Bitmap.Config.ARGB_8888)
-                            page.render(bitmap, null, null, Bitmap.Config.ARGB_8888)
+                            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                             val outFile = File(outputDir, "page_${i + 1}.$ext")
                             outFile.outputStream().use { out -> bitmap.compress(compress, 95, out) }
                             bitmap.recycle()

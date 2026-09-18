@@ -23,7 +23,7 @@ class TextToPdfConverter @Inject constructor() {
                 val paint = Paint().apply { textSize = 12f }
                 val lineHeight = paint.fontSpacing
                 var pageNumber = 1
-                var page = document.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).build())
+                var page = document.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create())
                 var y = margin + lineHeight
                 val maxWidth = pageWidth - margin * 2
                 val lines = mutableListOf<String>()
@@ -41,7 +41,7 @@ class TextToPdfConverter @Inject constructor() {
                     if (y + lineHeight > pageHeight - margin) {
                         document.finishPage(page)
                         pageNumber++
-                        page = document.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).build())
+                        page = document.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create())
                         y = margin + lineHeight
                     }
                     page.canvas.drawText(line, margin, y, paint)
