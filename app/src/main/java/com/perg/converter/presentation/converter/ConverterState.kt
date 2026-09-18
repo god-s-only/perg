@@ -11,5 +11,6 @@ data class ConverterState(
     val isConverting: Boolean = false,
     val progress: Int = 0,
     val outputUri: String? = null,
+    val outputName: String? = null,
     val error: String? = null
 )

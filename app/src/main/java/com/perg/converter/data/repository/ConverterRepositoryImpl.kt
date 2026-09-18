@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 
 @Singleton
 class ConverterRepositoryImpl @Inject constructor(
@@ -48,6 +49,22 @@ class ConverterRepositoryImpl @Inject constructor(
             emit(job.copy(status = ConversionStatus.FAILED, error = e.message))
         }
     }.flowOn(Dispatchers.IO)
+
+    override suspend fun rename(outputUri: String, displayName: String) {
+        withContext(Dispatchers.IO) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val values = ContentValues().apply {
+                    put(MediaStore.Downloads.DISPLAY_NAME, displayName)
+                }
+                val rows = context.contentResolver.update(Uri.parse(outputUri), values, null, null)
+                if (rows == 0) throw IllegalStateException("RenameFailed")
+            } else {
+                val file = File(Uri.parse(outputUri).path ?: throw IllegalStateException("RenameFailed"))
+                val dest = File(file.parent, displayName)
+                if (!file.renameTo(dest)) throw IllegalStateException("RenameFailed")
+            }
+        }
+    }
 
     private suspend fun singlePdf(job: ConversionJob): String {
         val tmp = File(context.cacheDir, job.id + ".pdf")

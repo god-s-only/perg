@@ -5,4 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface ConverterRepository {
     fun convert(job: ConversionJob): Flow<ConversionJob>
+    suspend fun rename(outputUri: String, displayName: String)
 }
