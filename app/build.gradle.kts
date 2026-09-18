@@ -87,4 +87,7 @@ dependencies {
   implementation(libs.hilt.android)
   implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
   ksp(libs.hilt.compiler)
+
+  implementation(libs.poi.ooxml)
+  implementation(libs.pdfbox.android)
 }
