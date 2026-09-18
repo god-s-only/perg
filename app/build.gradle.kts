@@ -7,10 +7,10 @@ plugins {
 }
 
 android {
-    namespace = "com.perf.converter"
+    namespace = "com.perg.converter"
     compileSdk = 36
     defaultConfig {
-        applicationId = "com.perf.converter"
+        applicationId = "com.perg.converter"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
