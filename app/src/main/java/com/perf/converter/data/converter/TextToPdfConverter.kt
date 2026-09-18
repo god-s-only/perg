@@ -5,10 +5,11 @@ import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import java.io.File
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class TextToPdfConverter {
+class TextToPdfConverter @Inject constructor() {
     suspend fun convert(context: Context, sourceUri: String, outputFile: File) {
         withContext(Dispatchers.IO) {
             val text = context.contentResolver.openInputStream(Uri.parse(sourceUri)).use { input ->

@@ -5,10 +5,11 @@ import android.graphics.BitmapFactory
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import java.io.File
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class ImageToPdfConverter {
+class ImageToPdfConverter @Inject constructor() {
     suspend fun convert(context: Context, sourceUri: String, outputFile: File) {
         withContext(Dispatchers.IO) {
             context.contentResolver.openInputStream(Uri.parse(sourceUri)).use { input ->

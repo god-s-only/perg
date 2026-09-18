@@ -6,8 +6,9 @@ import com.perf.converter.domain.model.ConversionStatus
 import com.perf.converter.domain.repository.ConverterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class ConvertFileUseCase(private val repository: ConverterRepository) {
+class ConvertFileUseCase @Inject constructor(private val repository: ConverterRepository) {
     operator fun invoke(job: ConversionJob): Flow<ConversionJob> {
         if (!ConversionCapabilities.isSupported(job.sourceFormat, job.targetFormat)) {
             return flow {

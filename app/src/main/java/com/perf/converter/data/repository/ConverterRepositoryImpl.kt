@@ -10,13 +10,17 @@ import com.perf.converter.domain.model.ConversionStatus
 import com.perf.converter.domain.model.DocumentFormat
 import com.perf.converter.domain.repository.ConverterRepository
 import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
-class ConverterRepositoryImpl(
-    private val context: Context,
+@Singleton
+class ConverterRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val imageToPdf: ImageToPdfConverter,
     private val textToPdf: TextToPdfConverter,
     private val pdfToImage: PdfToImageConverter

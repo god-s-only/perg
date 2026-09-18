@@ -7,10 +7,11 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import com.perf.converter.domain.model.DocumentFormat
 import java.io.File
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class PdfToImageConverter {
+class PdfToImageConverter @Inject constructor() {
     suspend fun convert(
         context: Context,
         sourceUri: String,
