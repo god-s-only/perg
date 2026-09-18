@@ -7,9 +7,14 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.provider.OpenableColumns
+import com.perg.converter.data.converter.DocxToPdfConverter
+import com.perg.converter.data.converter.DocxToTxtConverter
 import com.perg.converter.data.converter.ImageToPdfConverter
+import com.perg.converter.data.converter.PdfTextExtractor
+import com.perg.converter.data.converter.PdfToDocxConverter
 import com.perg.converter.data.converter.PdfToImageConverter
 import com.perg.converter.data.converter.TextToPdfConverter
+import com.perg.converter.data.converter.TxtToDocxConverter
 import com.perg.converter.domain.model.ConversionJob
 import com.perg.converter.domain.model.ConversionStatus
 import com.perg.converter.domain.model.DocumentFormat
@@ -29,7 +34,12 @@ class ConverterRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val imageToPdf: ImageToPdfConverter,
     private val textToPdf: TextToPdfConverter,
-    private val pdfToImage: PdfToImageConverter
+    private val pdfToImage: PdfToImageConverter,
+    private val docxToPdf: DocxToPdfConverter,
+    private val pdfText: PdfTextExtractor,
+    private val pdfToDocx: PdfToDocxConverter,
+    private val txtToDocx: TxtToDocxConverter,
+    private val docxToTxt: DocxToTxtConverter
 ) : ConverterRepository {
     override fun convert(job: ConversionJob): Flow<ConversionJob> = flow {
         emit(job.copy(status = ConversionStatus.QUEUED, progress = 0))
@@ -42,6 +52,11 @@ class ConverterRepositoryImpl @Inject constructor(
                 job.sourceFormat == DocumentFormat.TXT && job.targetFormat == DocumentFormat.PDF -> textPdf(job)
                 job.sourceFormat == DocumentFormat.PDF && job.targetFormat == DocumentFormat.PNG -> pdfImages(job)
                 job.sourceFormat == DocumentFormat.PDF && job.targetFormat == DocumentFormat.JPEG -> pdfImages(job)
+                job.sourceFormat == DocumentFormat.DOCX && job.targetFormat == DocumentFormat.PDF -> docxPdf(job)
+                job.sourceFormat == DocumentFormat.PDF && job.targetFormat == DocumentFormat.TXT -> pdfTxt(job)
+                job.sourceFormat == DocumentFormat.PDF && job.targetFormat == DocumentFormat.DOCX -> pdfDocx(job)
+                job.sourceFormat == DocumentFormat.TXT && job.targetFormat == DocumentFormat.DOCX -> txtDocx(job)
+                job.sourceFormat == DocumentFormat.DOCX && job.targetFormat == DocumentFormat.TXT -> docxTxt(job)
                 else -> throw IllegalArgumentException("UnsupportedConversion")
             }
             emit(job.copy(status = ConversionStatus.SUCCEEDED, progress = 100, outputUri = output))
@@ -91,6 +106,36 @@ class ConverterRepositoryImpl @Inject constructor(
         }
         tmpDir.deleteRecursively()
         return first
+    }
+
+    private suspend fun docxPdf(job: ConversionJob): String {
+        val tmp = File(context.cacheDir, job.id + ".pdf")
+        docxToPdf.convert(context, job.sourceUri, tmp)
+        return publish(tmp, baseName(job) + ".pdf", mimeOf(DocumentFormat.PDF))
+    }
+
+    private suspend fun pdfTxt(job: ConversionJob): String {
+        val tmp = File(context.cacheDir, job.id + ".txt")
+        tmp.writeText(pdfText.extract(context, job.sourceUri))
+        return publish(tmp, baseName(job) + ".txt", mimeOf(DocumentFormat.TXT))
+    }
+
+    private suspend fun pdfDocx(job: ConversionJob): String {
+        val tmp = File(context.cacheDir, job.id + ".docx")
+        pdfToDocx.convert(context, job.sourceUri, tmp)
+        return publish(tmp, baseName(job) + ".docx", mimeOf(DocumentFormat.DOCX))
+    }
+
+    private suspend fun txtDocx(job: ConversionJob): String {
+        val tmp = File(context.cacheDir, job.id + ".docx")
+        txtToDocx.convert(context, job.sourceUri, tmp)
+        return publish(tmp, baseName(job) + ".docx", mimeOf(DocumentFormat.DOCX))
+    }
+
+    private suspend fun docxTxt(job: ConversionJob): String {
+        val tmp = File(context.cacheDir, job.id + ".txt")
+        docxToTxt.convert(context, job.sourceUri, tmp)
+        return publish(tmp, baseName(job) + ".txt", mimeOf(DocumentFormat.TXT))
     }
 
     private fun publish(tmp: File, displayName: String, mime: String): String {

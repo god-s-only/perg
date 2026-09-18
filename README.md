@@ -5,8 +5,9 @@
 ## Features (v1.0.0)
 
 - Image (JPEG, PNG, WEBP) to PDF
-- Text (.txt) to PDF
-- PDF to PNG / JPEG images (every page)
+- Text (.txt) to PDF and Word (.docx)
+- Word (.docx) to PDF and text
+- PDF to PNG / JPEG images (every page), text and Word
 - Rename the output right from the result dialog
 - Open the converted file straight from the app
 - Files land in Download / Perg with the source file's name
@@ -19,11 +20,11 @@
 | JPEG | yes | - | - | - | - |
 | PNG | yes | - | - | - | - |
 | WEBP | yes | - | - | - | - |
-| PDF | - | yes | yes | planned | planned |
-| DOCX | planned | - | - | - | planned |
-| TXT | yes | - | - | planned | - |
+| PDF | - | yes | yes | yes | yes |
+| DOCX | yes | - | - | - | yes |
+| TXT | yes | - | - | yes | - |
 
-Everything runs on-device with `PdfDocument`, `PdfRenderer` and `BitmapFactory`. DOCX support (Apache POI, still offline) is on the roadmap.
+Everything runs on-device with `PdfDocument`, `PdfRenderer`, `BitmapFactory`, Apache POI and PdfBox-Android.
 
 ## Architecture
 
@@ -75,7 +76,6 @@ A signed release APK is built with your own keystore (never committed to this re
 
 ## Roadmap
 
-- DOCX to PDF and back, PDF to TXT/DOCX (offline, via Apache POI)
 - Conversion history screen
 - Batch / multi-file conversion
 - Per-file quality and page-size options
