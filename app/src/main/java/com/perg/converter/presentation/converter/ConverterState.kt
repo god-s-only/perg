@@ -4,6 +4,7 @@ import com.perg.converter.domain.model.DocumentFormat
 
 data class ConverterState(
     val sourceUri: String? = null,
+    val sourceName: String? = null,
     val sourceFormat: DocumentFormat? = null,
     val targetFormat: DocumentFormat? = null,
     val availableTargets: List<DocumentFormat> = emptyList(),

@@ -40,6 +40,7 @@ class ConverterViewModel @Inject constructor(
         _state.update {
             it.copy(
                 sourceUri = uri,
+                sourceName = fileName,
                 sourceFormat = format,
                 targetFormat = null,
                 availableTargets = ConversionCapabilities.targetsFor(format),
