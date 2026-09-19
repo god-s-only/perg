@@ -10,6 +10,7 @@ import android.provider.OpenableColumns
 import com.perg.converter.data.converter.DocxToPdfConverter
 import com.perg.converter.data.converter.DocxToTxtConverter
 import com.perg.converter.data.converter.ImageToPdfConverter
+import com.perg.converter.data.converter.PdfMerger
 import com.perg.converter.data.converter.PdfTextExtractor
 import com.perg.converter.data.converter.PdfToDocxConverter
 import com.perg.converter.data.converter.PdfToImageConverter
@@ -18,6 +19,7 @@ import com.perg.converter.data.converter.TxtToDocxConverter
 import com.perg.converter.domain.model.ConversionJob
 import com.perg.converter.domain.model.ConversionStatus
 import com.perg.converter.domain.model.DocumentFormat
+import com.perg.converter.domain.model.MergeJob
 import com.perg.converter.domain.repository.ConverterRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -39,7 +41,8 @@ class ConverterRepositoryImpl @Inject constructor(
     private val pdfText: PdfTextExtractor,
     private val pdfToDocx: PdfToDocxConverter,
     private val txtToDocx: TxtToDocxConverter,
-    private val docxToTxt: DocxToTxtConverter
+    private val docxToTxt: DocxToTxtConverter,
+    private val pdfMerger: PdfMerger
 ) : ConverterRepository {
     override fun convert(job: ConversionJob): Flow<ConversionJob> = flow {
         emit(job.copy(status = ConversionStatus.QUEUED, progress = 0))
@@ -62,6 +65,36 @@ class ConverterRepositoryImpl @Inject constructor(
             emit(job.copy(status = ConversionStatus.SUCCEEDED, progress = 100, outputUri = output))
         } catch (e: Exception) {
             emit(job.copy(status = ConversionStatus.FAILED, error = e.message))
+        }
+    }.flowOn(Dispatchers.IO)
+
+    override fun mergePdfs(sourceUris: List<String>, outputName: String): Flow<MergeJob> = flow {
+        emit(MergeJob(total = sourceUris.size, status = ConversionStatus.QUEUED, progress = 0))
+        try {
+            val name = if (outputName.endsWith(".pdf", ignoreCase = true)) outputName else outputName + ".pdf"
+            val tmp = File(context.cacheDir, "merge_" + System.currentTimeMillis() + ".pdf")
+            pdfMerger.merge(context, sourceUris, tmp) { opened ->
+                emit(
+                    MergeJob(
+                        total = sourceUris.size,
+                        merged = opened,
+                        status = ConversionStatus.RUNNING,
+                        progress = opened * 50 / sourceUris.size
+                    )
+                )
+            }
+            val uri = publish(tmp, name, mimeOf(DocumentFormat.PDF))
+            emit(
+                MergeJob(
+                    total = sourceUris.size,
+                    merged = sourceUris.size,
+                    status = ConversionStatus.SUCCEEDED,
+                    progress = 100,
+                    outputUri = uri
+                )
+            )
+        } catch (e: Exception) {
+            emit(MergeJob(total = sourceUris.size, status = ConversionStatus.FAILED, error = e.message))
         }
     }.flowOn(Dispatchers.IO)
 
