@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.perg.converter.presentation.converter.ConverterScreen
+import com.perg.converter.presentation.merge.MergeScreen
 
 @Composable
 fun MainNavigation() {
@@ -20,7 +21,16 @@ fun MainNavigation() {
     entryProvider =
       entryProvider {
         entry<Converter> {
-          ConverterScreen(modifier = Modifier.safeDrawingPadding().padding(16.dp))
+          ConverterScreen(
+            onMergeClick = { backStack.add(Merge) },
+            modifier = Modifier.safeDrawingPadding().padding(16.dp)
+          )
+        }
+        entry<Merge> {
+          MergeScreen(
+            onBack = { backStack.removeLastOrNull() },
+            modifier = Modifier.safeDrawingPadding().padding(16.dp)
+          )
         }
       },
   )

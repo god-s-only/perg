@@ -51,6 +51,7 @@ import com.perg.converter.domain.model.DocumentFormat
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConverterScreen(
+    onMergeClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ConverterViewModel = hiltViewModel()
 ) {
@@ -97,6 +98,7 @@ fun ConverterScreen(
             onPick = { picker.launch(arrayOf("*/*")) },
             onTarget = { viewModel.onEvent(ConverterEvent.TargetSelected(it)) },
             onConvert = { viewModel.onEvent(ConverterEvent.StartConversion) },
+            onMergeClick = onMergeClick,
             modifier = Modifier.padding(padding)
         )
     }
@@ -152,6 +154,7 @@ private fun ConverterContent(
     onPick: () -> Unit,
     onTarget: (DocumentFormat) -> Unit,
     onConvert: () -> Unit,
+    onMergeClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -216,6 +219,7 @@ private fun ConverterContent(
             "Files save to Download / Perg, always offline.",
             style = MaterialTheme.typography.bodySmall
         )
+        TextButton(onClick = onMergeClick) { Text("Or merge multiple PDFs") }
     }
 }
 
