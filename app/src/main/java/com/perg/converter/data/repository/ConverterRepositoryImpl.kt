@@ -26,7 +26,9 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
@@ -68,13 +70,13 @@ class ConverterRepositoryImpl @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
-    override fun mergePdfs(sourceUris: List<String>, outputName: String): Flow<MergeJob> = flow {
-        emit(MergeJob(total = sourceUris.size, status = ConversionStatus.QUEUED, progress = 0))
+    override fun mergePdfs(sourceUris: List<String>, outputName: String): Flow<MergeJob> = callbackFlow {
+        trySend(MergeJob(total = sourceUris.size, status = ConversionStatus.QUEUED, progress = 0))
         try {
             val name = if (outputName.endsWith(".pdf", ignoreCase = true)) outputName else outputName + ".pdf"
             val tmp = File(context.cacheDir, "merge_" + System.currentTimeMillis() + ".pdf")
             pdfMerger.merge(context, sourceUris, tmp) { opened ->
-                emit(
+                trySend(
                     MergeJob(
                         total = sourceUris.size,
                         merged = opened,
@@ -84,7 +86,7 @@ class ConverterRepositoryImpl @Inject constructor(
                 )
             }
             val uri = publish(tmp, name, mimeOf(DocumentFormat.PDF))
-            emit(
+            trySend(
                 MergeJob(
                     total = sourceUris.size,
                     merged = sourceUris.size,
@@ -94,8 +96,9 @@ class ConverterRepositoryImpl @Inject constructor(
                 )
             )
         } catch (e: Exception) {
-            emit(MergeJob(total = sourceUris.size, status = ConversionStatus.FAILED, error = e.message))
+            trySend(MergeJob(total = sourceUris.size, status = ConversionStatus.FAILED, error = e.message))
         }
+        awaitClose { }
     }.flowOn(Dispatchers.IO)
 
     override suspend fun rename(outputUri: String, displayName: String) {

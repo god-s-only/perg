@@ -16,7 +16,7 @@ class PdfMerger @Inject constructor() {
         context: Context,
         sourceUris: List<String>,
         outputFile: File,
-        onOpened: suspend (Int) -> Unit
+        onOpened: (Int) -> Unit
     ) {
         withContext(Dispatchers.IO) {
             PDFBoxResourceLoader.init(context.applicationContext)
