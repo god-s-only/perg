@@ -53,6 +53,7 @@ import com.perg.converter.domain.model.DocumentFormat
 fun ConverterScreen(
     onMergeClick: () -> Unit = {},
     onBatchClick: () -> Unit = {},
+    onEditorClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ConverterViewModel = hiltViewModel()
 ) {
@@ -101,6 +102,7 @@ fun ConverterScreen(
             onConvert = { viewModel.onEvent(ConverterEvent.StartConversion) },
             onMergeClick = onMergeClick,
             onBatchClick = onBatchClick,
+            onEditorClick = onEditorClick,
             modifier = Modifier.padding(padding)
         )
     }
@@ -158,6 +160,7 @@ private fun ConverterContent(
     onConvert: () -> Unit,
     onMergeClick: () -> Unit,
     onBatchClick: () -> Unit,
+    onEditorClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -224,6 +227,7 @@ private fun ConverterContent(
         )
         TextButton(onClick = onMergeClick) { Text("Or merge multiple PDFs") }
         TextButton(onClick = onBatchClick) { Text("Or convert multiple files") }
+        TextButton(onClick = onEditorClick) { Text("Or edit a PDF") }
     }
 }
 

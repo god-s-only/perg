@@ -8,3 +8,5 @@ import kotlinx.serialization.Serializable
 @Serializable data object Merge : NavKey
 
 @Serializable data object Batch : NavKey
+
+@Serializable data object Editor : NavKey
