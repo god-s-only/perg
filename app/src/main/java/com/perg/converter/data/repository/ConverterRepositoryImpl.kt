@@ -10,6 +10,7 @@ import android.provider.OpenableColumns
 import com.perg.converter.data.converter.DocxToPdfConverter
 import com.perg.converter.data.converter.DocxToTxtConverter
 import com.perg.converter.data.converter.ImageToPdfConverter
+import com.perg.converter.data.converter.PdfEditor
 import com.perg.converter.data.converter.PdfMerger
 import com.perg.converter.data.converter.PdfTextExtractor
 import com.perg.converter.data.converter.PdfToDocxConverter
@@ -19,6 +20,7 @@ import com.perg.converter.data.converter.TxtToDocxConverter
 import com.perg.converter.domain.model.ConversionJob
 import com.perg.converter.domain.model.ConversionStatus
 import com.perg.converter.domain.model.DocumentFormat
+import com.perg.converter.domain.model.EditableDocument
 import com.perg.converter.domain.model.MergeJob
 import com.perg.converter.domain.repository.ConverterRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -44,7 +46,8 @@ class ConverterRepositoryImpl @Inject constructor(
     private val pdfToDocx: PdfToDocxConverter,
     private val txtToDocx: TxtToDocxConverter,
     private val docxToTxt: DocxToTxtConverter,
-    private val pdfMerger: PdfMerger
+    private val pdfMerger: PdfMerger,
+    private val pdfEditor: PdfEditor
 ) : ConverterRepository {
     override fun convert(job: ConversionJob): Flow<ConversionJob> = flow {
         emit(job.copy(status = ConversionStatus.QUEUED, progress = 0))
@@ -101,8 +104,18 @@ class ConverterRepositoryImpl @Inject constructor(
         awaitClose { }
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun rename(outputUri: String, displayName: String) {
-        withContext(Dispatchers.IO) {
+    override suspend fun loadEditableDocument(sourceUri: String): EditableDocument {
+        return pdfEditor.extract(context, sourceUri)
+    }
+
+    override suspend fun saveDocumentEdits(sourceUri: String, edits: Map<String, String>, outputName: String): String {
+        val name = if (outputName.endsWith(".pdf", ignoreCase = true)) outputName else outputName + ".pdf"
+        val tmp = File(context.cacheDir, "edit_" + System.currentTimeMillis() + ".pdf")
+        pdfEditor.save(context, sourceUri, edits, tmp)
+        return publish(tmp, name, mimeOf(DocumentFormat.PDF))
+    }
+
+    override suspend fun rename(outputUri: String, displayName: String) {        withContext(Dispatchers.IO) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val values = ContentValues().apply {
                     put(MediaStore.Downloads.DISPLAY_NAME, displayName)
