@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.perg.converter.presentation.batch.BatchScreen
 import com.perg.converter.presentation.converter.ConverterScreen
 import com.perg.converter.presentation.merge.MergeScreen
 
@@ -23,11 +24,18 @@ fun MainNavigation() {
         entry<Converter> {
           ConverterScreen(
             onMergeClick = { backStack.add(Merge) },
+            onBatchClick = { backStack.add(Batch) },
             modifier = Modifier.safeDrawingPadding().padding(16.dp)
           )
         }
         entry<Merge> {
           MergeScreen(
+            onBack = { backStack.removeLastOrNull() },
+            modifier = Modifier.safeDrawingPadding().padding(16.dp)
+          )
+        }
+        entry<Batch> {
+          BatchScreen(
             onBack = { backStack.removeLastOrNull() },
             modifier = Modifier.safeDrawingPadding().padding(16.dp)
           )

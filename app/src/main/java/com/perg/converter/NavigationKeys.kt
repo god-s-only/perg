@@ -6,3 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable data object Converter : NavKey
 
 @Serializable data object Merge : NavKey
+
+@Serializable data object Batch : NavKey
